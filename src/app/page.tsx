@@ -2,17 +2,16 @@
 
 import { useState } from "react";
 import CustomCursor from "@/components/CustomCursor";
+import SmoothScroll from "@/components/SmoothScroll";
+import PillNav from "@/components/PillNav";
 import ContactModal from "@/components/ContactModal";
-import Navigation from "@/components/Navigation";
-import FloatingButton from "@/components/FloatingButton";
 import Hero from "@/components/Hero";
-import Statement from "@/components/Statement";
+import About from "@/components/About";
 import Expertises from "@/components/Expertises";
-import Work from "@/components/Work";
+import BentoGrid from "@/components/BentoGrid";
 import Brands from "@/components/Brands";
-import FinalCTA from "@/components/FinalCTA";
+import ContactCTA from "@/components/ContactCTA";
 import Footer from "@/components/Footer";
-import ScrollReveal from "@/components/ScrollReveal";
 
 export default function Home() {
   const [modalOpen, setModalOpen] = useState(false);
@@ -22,18 +21,17 @@ export default function Home() {
 
   return (
     <>
+      <SmoothScroll />
       <CustomCursor />
       <ContactModal isOpen={modalOpen} onClose={closeModal} />
-      <Navigation onContact={openModal} />
-      <FloatingButton onContact={openModal} />
-      <Hero />
-      <Statement />
+      <PillNav onContact={openModal} />
+      <Hero onContact={openModal} />
+      <About />
       <Expertises />
-      <Work />
+      <BentoGrid />
       <Brands />
-      <FinalCTA onContact={openModal} />
+      <ContactCTA onContact={openModal} />
       <Footer />
-      <ScrollReveal />
     </>
   );
 }

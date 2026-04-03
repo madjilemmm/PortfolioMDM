@@ -2,14 +2,14 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 
-const outfit = localFont({
+const inter = localFont({
   src: [
     {
-      path: "../fonts/Outfit-latin.woff2",
+      path: "../fonts/Inter-latin.woff2",
       style: "normal",
     },
   ],
-  variable: "--font-outfit",
+  variable: "--font-inter",
   display: "swap",
 });
 
@@ -25,7 +25,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="fr" className={outfit.variable}>
+    <html lang="fr" className={inter.variable}>
       <body>{children}</body>
     </html>
   );

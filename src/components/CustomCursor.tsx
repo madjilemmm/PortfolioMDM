@@ -3,52 +3,82 @@
 import { useEffect, useRef } from "react";
 
 export default function CustomCursor() {
-  const curRef = useRef<HTMLDivElement>(null);
+  const dotRef = useRef<HTMLDivElement>(null);
   const ringRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const cur = curRef.current;
+    // Only on devices with fine pointer (desktop)
+    if (!window.matchMedia("(pointer: fine)").matches) return;
+
+    const dot = dotRef.current;
     const ring = ringRef.current;
-    if (!cur || !ring) return;
+    if (!dot || !ring) return;
+
+    let mouseX = 0;
+    let mouseY = 0;
+    let ringX = 0;
+    let ringY = 0;
 
     const onMove = (e: MouseEvent) => {
-      cur.style.left = e.clientX + "px";
-      cur.style.top = e.clientY + "px";
-      ring.style.left = e.clientX + "px";
-      ring.style.top = e.clientY + "px";
+      mouseX = e.clientX;
+      mouseY = e.clientY;
+      dot.style.left = mouseX + "px";
+      dot.style.top = mouseY + "px";
     };
 
-    const addBig = () => {
-      cur.classList.add("big");
-      ring.classList.add("big");
+    // Smooth ring follow with lerp
+    let rafId: number;
+    const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
+    const animateRing = () => {
+      ringX = lerp(ringX, mouseX, 0.15);
+      ringY = lerp(ringY, mouseY, 0.15);
+      ring.style.left = ringX + "px";
+      ring.style.top = ringY + "px";
+      rafId = requestAnimationFrame(animateRing);
     };
-    const removeBig = () => {
-      cur.classList.remove("big");
-      ring.classList.remove("big");
-    };
+    rafId = requestAnimationFrame(animateRing);
 
     document.addEventListener("mousemove", onMove);
 
-    const selectors = "a, button, .wcard, .hcard, .brand-item";
-    const elements = document.querySelectorAll(selectors);
-    elements.forEach((el) => {
-      el.addEventListener("mouseenter", addBig);
-      el.addEventListener("mouseleave", removeBig);
+    const addHover = () => {
+      dot.classList.add("hovering");
+      ring.classList.add("hovering");
+    };
+    const removeHover = () => {
+      dot.classList.remove("hovering");
+      ring.classList.remove("hovering");
+    };
+
+    const interactiveSelector =
+      "a, button, .bento-card, .exp-card, .brand-chip, .bento-filter, input, textarea";
+    const observer = new MutationObserver(() => {
+      document.querySelectorAll(interactiveSelector).forEach((el) => {
+        el.removeEventListener("mouseenter", addHover);
+        el.removeEventListener("mouseleave", removeHover);
+        el.addEventListener("mouseenter", addHover);
+        el.addEventListener("mouseleave", removeHover);
+      });
+    });
+
+    observer.observe(document.body, { childList: true, subtree: true });
+
+    // Initial pass
+    document.querySelectorAll(interactiveSelector).forEach((el) => {
+      el.addEventListener("mouseenter", addHover);
+      el.addEventListener("mouseleave", removeHover);
     });
 
     return () => {
       document.removeEventListener("mousemove", onMove);
-      elements.forEach((el) => {
-        el.removeEventListener("mouseenter", addBig);
-        el.removeEventListener("mouseleave", removeBig);
-      });
+      cancelAnimationFrame(rafId);
+      observer.disconnect();
     };
   }, []);
 
   return (
     <>
-      <div id="cur" ref={curRef} />
-      <div id="cur-ring" ref={ringRef} />
+      <div className="cursor-dot" ref={dotRef} />
+      <div className="cursor-ring" ref={ringRef} />
     </>
   );
 }

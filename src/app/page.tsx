@@ -6,6 +6,7 @@ import SmoothScroll from "@/components/SmoothScroll";
 import PillNav from "@/components/PillNav";
 import ContactModal from "@/components/ContactModal";
 import Hero from "@/components/Hero";
+import Experiences from "@/components/Experiences";
 import About from "@/components/About";
 import Expertises from "@/components/Expertises";
 import BentoGrid from "@/components/BentoGrid";
@@ -25,7 +26,8 @@ export default function Home() {
       <CustomCursor />
       <ContactModal isOpen={modalOpen} onClose={closeModal} />
       <PillNav onContact={openModal} />
-      <Hero onContact={openModal} />
+      <Hero />
+      <Experiences />
       <About />
       <Expertises />
       <BentoGrid />

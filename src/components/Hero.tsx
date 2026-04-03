@@ -5,11 +5,7 @@ import { motion, useScroll, useTransform } from "framer-motion";
 import MagneticButton from "./MagneticButton";
 import RevealOnScroll from "./RevealOnScroll";
 
-interface HeroProps {
-  onContact: () => void;
-}
-
-export default function Hero({ onContact }: HeroProps) {
+export default function Hero() {
   const ref = useRef(null);
   const { scrollYProgress } = useScroll({
     target: ref,
@@ -22,7 +18,6 @@ export default function Hero({ onContact }: HeroProps) {
 
   return (
     <section className="hero hero-centered" ref={ref} id="hero">
-      {/* Background with parallax */}
       <motion.div className="hero-bg" style={{ y: bgY }}>
         <div className="hero-gradient hero-gradient-1" />
         <div className="hero-gradient hero-gradient-2" />
@@ -38,12 +33,6 @@ export default function Hero({ onContact }: HeroProps) {
           </h1>
         </RevealOnScroll>
 
-        <RevealOnScroll delay={0.35}>
-          <p className="hero-tagline">
-            Communication &middot; Sport Business &middot; Dev Web
-          </p>
-        </RevealOnScroll>
-
         <RevealOnScroll delay={0.5}>
           <p className="hero-sub">
             Étudiante en Bac+3 Marketing &amp; Communication, je crée des projets qui
@@ -53,24 +42,15 @@ export default function Hero({ onContact }: HeroProps) {
         </RevealOnScroll>
 
         <RevealOnScroll delay={0.65}>
-          <div className="hero-actions">
-            <MagneticButton className="btn-accent" onClick={onContact}>
-              Me contacter
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round">
-                <path d="M5 12h14M12 5l7 7-7 7" />
-              </svg>
-            </MagneticButton>
-            <MagneticButton as="a" className="btn-secondary" href="#work">
-              Voir mes projets
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-                <path d="M6 9l6 6 6-6" />
-              </svg>
-            </MagneticButton>
-          </div>
+          <MagneticButton as="a" className="btn-secondary" href="#experiences">
+            Voir mes expériences
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+              <path d="M6 9l6 6 6-6" />
+            </svg>
+          </MagneticButton>
         </RevealOnScroll>
       </motion.div>
 
-      {/* Scroll indicator */}
       <motion.div className="hero-scroll-hint" style={{ opacity }}>
         <RevealOnScroll delay={1}>
           <div className="scroll-indicator">

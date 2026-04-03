@@ -5,13 +5,58 @@ import { motion, useScroll, useTransform } from "framer-motion";
 import RevealOnScroll from "./RevealOnScroll";
 
 /* ─────────────────────────────────────────────
-   EXPERIENCE PAGE WRAPPER
-   Each "page" fills the viewport and has a paper-turn
-   reveal: the previous page lifts/rotates away as you scroll,
-   revealing the next experience underneath.
+   CRUMPLED PAPER TRANSITION
+   SVG filter for the paper-crumple distortion
 ───────────────────────────────────────────── */
+function PaperFilters() {
+  return (
+    <svg width="0" height="0" style={{ position: "absolute" }}>
+      <defs>
+        <filter id="paper-crumple">
+          <feTurbulence
+            type="fractalNoise"
+            baseFrequency="0.015"
+            numOctaves="3"
+            seed="2"
+            result="noise"
+          />
+          <feDisplacementMap
+            in="SourceGraphic"
+            in2="noise"
+            scale="0"
+            xChannelSelector="R"
+            yChannelSelector="G"
+          >
+            <animate
+              attributeName="scale"
+              values="0;0"
+              dur="1s"
+              fill="freeze"
+            />
+          </feDisplacementMap>
+        </filter>
+      </defs>
+    </svg>
+  );
+}
 
-function PageTurn({
+/* ─────────────────────────────────────────────
+   TIMELINE DOT — on the vertical line
+───────────────────────────────────────────── */
+function TimelineDot({ num, color = "var(--accent)" }: { num: string; color?: string }) {
+  return (
+    <div className="tl-dot-wrap">
+      <div className="tl-dot" style={{ borderColor: color }}>
+        <span style={{ color }}>{num}</span>
+      </div>
+    </div>
+  );
+}
+
+/* ─────────────────────────────────────────────
+   PAGE WRAPPER — paper crumple transition
+───────────────────────────────────────────── */
+function PaperPage({
   children,
   index,
 }: {
@@ -24,30 +69,39 @@ function PageTurn({
     offset: ["start end", "end start"],
   });
 
-  // The "paper" lifts up and rotates slightly as it exits
-  const rotateX = useTransform(scrollYProgress, [0.6, 1], [0, -4]);
-  const y = useTransform(scrollYProgress, [0.6, 1], ["0%", "-8%"]);
-  const scale = useTransform(scrollYProgress, [0.6, 1], [1, 0.95]);
-  const shadowOpacity = useTransform(scrollYProgress, [0, 0.3, 0.6], [0, 0.15, 0]);
+  // Paper crumple: it folds inward from the top edge, like turning a real page
+  const rotateX = useTransform(scrollYProgress, [0.55, 0.85], [0, -6]);
+  const scaleY = useTransform(scrollYProgress, [0.55, 0.85], [1, 0.96]);
+  const y = useTransform(scrollYProgress, [0.55, 0.85], ["0%", "-5%"]);
+  const foldOpacity = useTransform(scrollYProgress, [0.5, 0.7, 0.85], [0, 0.5, 0]);
+
+  // Crumple wrinkles: side creases that appear during the fold
+  const wrinkleL = useTransform(scrollYProgress, [0.5, 0.7], ["0%", "3%"]);
+  const wrinkleR = useTransform(scrollYProgress, [0.5, 0.7], ["0%", "-3%"]);
 
   return (
     <motion.div
       ref={ref}
-      className="exp-page"
+      className="paper-page"
       style={{
         rotateX,
+        scaleY,
         y,
-        scale,
-        transformPerspective: 1200,
-        transformOrigin: "center bottom",
+        transformPerspective: 900,
+        transformOrigin: "center top",
         zIndex: 10 - index,
       }}
     >
-      {/* Paper shadow underneath */}
-      <motion.div
-        className="exp-page-shadow"
-        style={{ opacity: shadowOpacity }}
-      />
+      {/* Paper fold crease — horizontal line that appears during turn */}
+      <motion.div className="paper-fold-crease" style={{ opacity: foldOpacity }} />
+
+      {/* Side wrinkles */}
+      <motion.div className="paper-wrinkle paper-wrinkle-l" style={{ width: wrinkleL, opacity: foldOpacity }} />
+      <motion.div className="paper-wrinkle paper-wrinkle-r" style={{ width: wrinkleR, opacity: foldOpacity }} />
+
+      {/* Paper edge shadow */}
+      <motion.div className="paper-edge-shadow" style={{ opacity: foldOpacity }} />
+
       {children}
     </motion.div>
   );
@@ -67,13 +121,19 @@ function SoFootExperience() {
 
   return (
     <div className="exp-page-inner exp-sofoot" ref={ref}>
-      {/* Background — urban/football editorial mood */}
       <motion.div className="exp-page-bg exp-sofoot-bg" style={{ y: imgY }}>
         <div className="exp-sofoot-grain" />
       </motion.div>
 
+      {/* Paper texture overlay */}
+      <div className="paper-texture" />
+
       <motion.div className="exp-page-content" style={{ y: textY }}>
         <RevealOnScroll delay={0.1}>
+          <div className="exp-date-badge">2024</div>
+        </RevealOnScroll>
+
+        <RevealOnScroll delay={0.15}>
           <div className="exp-chapter">
             <span className="exp-chapter-num">01</span>
             <span className="exp-chapter-line" />
@@ -81,15 +141,15 @@ function SoFootExperience() {
           </div>
         </RevealOnScroll>
 
-        <RevealOnScroll delay={0.2}>
+        <RevealOnScroll delay={0.25}>
           <h2 className="exp-title">SO FOOT</h2>
         </RevealOnScroll>
 
-        <RevealOnScroll delay={0.3}>
+        <RevealOnScroll delay={0.35}>
           <p className="exp-role">Stage — Rédaction & Communication</p>
         </RevealOnScroll>
 
-        <RevealOnScroll delay={0.4}>
+        <RevealOnScroll delay={0.45}>
           <div className="exp-paper-card">
             <div className="exp-paper-fold" />
             <p className="exp-paper-text">
@@ -101,7 +161,7 @@ function SoFootExperience() {
           </div>
         </RevealOnScroll>
 
-        <RevealOnScroll delay={0.5}>
+        <RevealOnScroll delay={0.55}>
           <div className="exp-tags-row">
             <span className="exp-tag-pill">Rédaction</span>
             <span className="exp-tag-pill">Ligne éditoriale</span>
@@ -110,7 +170,7 @@ function SoFootExperience() {
           </div>
         </RevealOnScroll>
 
-        <RevealOnScroll delay={0.6}>
+        <RevealOnScroll delay={0.65}>
           <blockquote className="exp-quote">
             &ldquo;Le football, c&apos;est la société en crampons.&rdquo;
           </blockquote>
@@ -136,14 +196,11 @@ function BiosphereExperience() {
 
   return (
     <div className="exp-page-inner exp-biosphere" ref={ref}>
-      {/* Background — nature/forest mood */}
       <motion.div className="exp-page-bg exp-biosphere-bg" style={{ y: imgY }} />
 
-      {/* Floating leaves — parallax decorative elements */}
-      <motion.div
-        className="exp-leaf exp-leaf-1"
-        style={{ y: leafY, rotate: leafRotate }}
-      />
+      <div className="paper-texture paper-texture-nature" />
+
+      <motion.div className="exp-leaf exp-leaf-1" style={{ y: leafY, rotate: leafRotate }} />
       <motion.div
         className="exp-leaf exp-leaf-2"
         style={{
@@ -154,6 +211,10 @@ function BiosphereExperience() {
 
       <motion.div className="exp-page-content" style={{ y: textY }}>
         <RevealOnScroll delay={0.1}>
+          <div className="exp-date-badge exp-date-nature">2023 — 2024</div>
+        </RevealOnScroll>
+
+        <RevealOnScroll delay={0.15}>
           <div className="exp-chapter">
             <span className="exp-chapter-num">02</span>
             <span className="exp-chapter-line" />
@@ -161,19 +222,19 @@ function BiosphereExperience() {
           </div>
         </RevealOnScroll>
 
-        <RevealOnScroll delay={0.2}>
+        <RevealOnScroll delay={0.25}>
           <h2 className="exp-title exp-title-nature">
             Réserve de<br />Biosphère
           </h2>
         </RevealOnScroll>
 
-        <RevealOnScroll delay={0.3}>
+        <RevealOnScroll delay={0.35}>
           <p className="exp-role exp-role-nature">
             Fontainebleau & Gâtinais — Développement Web & Communication
           </p>
         </RevealOnScroll>
 
-        <RevealOnScroll delay={0.4}>
+        <RevealOnScroll delay={0.45}>
           <div className="exp-paper-card exp-paper-nature">
             <div className="exp-paper-fold exp-fold-nature" />
             <p className="exp-paper-text">
@@ -185,7 +246,7 @@ function BiosphereExperience() {
           </div>
         </RevealOnScroll>
 
-        <RevealOnScroll delay={0.5}>
+        <RevealOnScroll delay={0.55}>
           <div className="exp-tags-row">
             <span className="exp-tag-pill exp-tag-nature">Next.js</span>
             <span className="exp-tag-pill exp-tag-nature">PostgreSQL</span>
@@ -195,7 +256,7 @@ function BiosphereExperience() {
           </div>
         </RevealOnScroll>
 
-        <RevealOnScroll delay={0.6}>
+        <RevealOnScroll delay={0.65}>
           <a
             href="https://github.com/madjilemmm/SI-RBFG"
             target="_blank"
@@ -219,6 +280,8 @@ function BiosphereExperience() {
 export default function Experiences() {
   return (
     <section className="experiences-section" id="experiences">
+      <PaperFilters />
+
       {/* Section intro */}
       <div className="exp-intro">
         <RevealOnScroll>
@@ -231,14 +294,26 @@ export default function Experiences() {
         </RevealOnScroll>
       </div>
 
-      {/* Pages — stacked, each one "turns" away on scroll */}
-      <div className="exp-pages-stack">
-        <PageTurn index={0}>
-          <SoFootExperience />
-        </PageTurn>
-        <PageTurn index={1}>
-          <BiosphereExperience />
-        </PageTurn>
+      {/* Timeline + pages */}
+      <div className="timeline-container">
+        {/* Vertical timeline line */}
+        <div className="timeline-line" />
+
+        {/* SO FOOT */}
+        <div className="timeline-entry">
+          <TimelineDot num="01" />
+          <PaperPage index={0}>
+            <SoFootExperience />
+          </PaperPage>
+        </div>
+
+        {/* Biosphère */}
+        <div className="timeline-entry">
+          <TimelineDot num="02" color="#4a9e5c" />
+          <PaperPage index={1}>
+            <BiosphereExperience />
+          </PaperPage>
+        </div>
       </div>
     </section>
   );

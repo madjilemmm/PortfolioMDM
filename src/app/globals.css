@@ -1115,7 +1115,7 @@ ul { list-style: none; }
 }
 
 /* ============================================================
-   EXPERIENCES — Immersive notebook / page-turn section
+   EXPERIENCES — Timeline + Paper Crumple Transitions
 ============================================================ */
 .experiences-section {
   position: relative;
@@ -1125,7 +1125,7 @@ ul { list-style: none; }
 /* Intro */
 .exp-intro {
   text-align: center;
-  padding: 120px var(--px) 60px;
+  padding: 120px var(--px) 48px;
 }
 .exp-intro-label {
   font-size: 12px;
@@ -1135,12 +1135,8 @@ ul { list-style: none; }
   color: var(--accent);
   margin-bottom: 16px;
 }
-.exp-intro-label::before {
-  content: '— ';
-}
-.exp-intro-label::after {
-  content: ' —';
-}
+.exp-intro-label::before { content: '— '; }
+.exp-intro-label::after { content: ' —'; }
 .exp-intro-h2 {
   font-size: clamp(40px, 7vw, 80px);
   font-weight: 900;
@@ -1149,28 +1145,156 @@ ul { list-style: none; }
   color: var(--text-primary);
 }
 
-/* Pages stack */
-.exp-pages-stack {
+/* ── TIMELINE ───────────────────────────────── */
+.timeline-container {
   position: relative;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 var(--px);
 }
 
-/* Each page */
-.exp-page {
+/* Vertical line */
+.timeline-line {
+  position: absolute;
+  left: 32px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    var(--border) 5%,
+    var(--border) 90%,
+    transparent 100%
+  );
+  z-index: 5;
+}
+
+/* Timeline entry */
+.timeline-entry {
+  position: relative;
+  padding-left: 80px;
+  margin-bottom: 0;
+}
+
+/* Timeline dot */
+.tl-dot-wrap {
+  position: absolute;
+  left: 15px;
+  top: 50vh;
+  transform: translateY(-50%);
+  z-index: 10;
+}
+.tl-dot {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  border: 2px solid var(--accent);
+  background: var(--bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 0 6px var(--bg);
+}
+.tl-dot span {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+}
+
+/* Date badge */
+.exp-date-badge {
+  display: inline-block;
+  padding: 5px 14px;
+  background: rgba(255,69,0,0.1);
+  border: 1px solid rgba(255,69,0,0.15);
+  border-radius: var(--radius-full);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--accent);
+  margin-bottom: 20px;
+}
+.exp-date-nature {
+  background: rgba(34,120,60,0.1);
+  border-color: rgba(34,120,60,0.15);
+  color: #4a9e5c;
+}
+
+/* ── PAPER PAGE ─────────────────────────────── */
+.paper-page {
   position: relative;
   will-change: transform;
+  border-radius: 4px;
+  overflow: hidden;
 }
 
-.exp-page-shadow {
+/* Paper texture — subtle noise over every page */
+.paper-texture {
   position: absolute;
   inset: 0;
-  box-shadow: 0 -20px 80px rgba(0, 0, 0, 0.15);
-  pointer-events: none;
   z-index: 1;
+  pointer-events: none;
+  opacity: 0.35;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='paper'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.04' numOctaves='5' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23paper)' opacity='0.06'/%3E%3C/svg%3E");
+  background-size: 512px 512px;
+  mix-blend-mode: overlay;
+}
+.paper-texture-nature {
+  opacity: 0.25;
 }
 
+/* Paper fold crease — horizontal line during page turn */
+.paper-fold-crease {
+  position: absolute;
+  top: 10%;
+  left: 0; right: 0;
+  height: 2px;
+  z-index: 20;
+  pointer-events: none;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(0,0,0,0.12) 15%,
+    rgba(0,0,0,0.2) 50%,
+    rgba(0,0,0,0.12) 85%,
+    transparent 100%
+  );
+}
+
+/* Side wrinkles — creases along left/right edges during fold */
+.paper-wrinkle {
+  position: absolute;
+  top: 0; bottom: 0;
+  z-index: 20;
+  pointer-events: none;
+}
+.paper-wrinkle-l {
+  left: 0;
+  background: linear-gradient(to right, rgba(0,0,0,0.08), transparent);
+}
+.paper-wrinkle-r {
+  right: 0;
+  background: linear-gradient(to left, rgba(0,0,0,0.08), transparent);
+}
+
+/* Paper edge shadow — bottom edge depth during fold */
+.paper-edge-shadow {
+  position: absolute;
+  bottom: -2px;
+  left: 5%; right: 5%;
+  height: 20px;
+  z-index: 19;
+  pointer-events: none;
+  background: linear-gradient(to bottom, rgba(0,0,0,0.15), transparent);
+  border-radius: 0 0 50% 50% / 0 0 100% 100%;
+  filter: blur(6px);
+}
+
+/* ── PAGE INNER ─────────────────────────────── */
 .exp-page-inner {
   position: relative;
   min-height: 100vh;
+  min-height: 100svh;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1196,7 +1320,7 @@ ul { list-style: none; }
   display: flex;
   align-items: center;
   gap: 16px;
-  margin-bottom: 28px;
+  margin-bottom: 24px;
 }
 .exp-chapter-num {
   font-size: 13px;
@@ -1206,8 +1330,7 @@ ul { list-style: none; }
   font-variant-numeric: tabular-nums;
 }
 .exp-chapter-line {
-  width: 40px;
-  height: 1.5px;
+  width: 40px; height: 1.5px;
   background: var(--accent);
   opacity: 0.4;
 }
@@ -1237,7 +1360,7 @@ ul { list-style: none; }
   letter-spacing: 0.01em;
 }
 
-/* Paper card — the "notebook page" feel */
+/* Paper card — notebook feel */
 .exp-paper-card {
   position: relative;
   background: rgba(255, 255, 255, 0.06);
@@ -1247,7 +1370,6 @@ ul { list-style: none; }
   border-radius: var(--radius-sm);
   padding: 32px 36px;
   margin-bottom: 28px;
-  /* Paper texture: subtle lined pattern */
   background-image:
     repeating-linear-gradient(
       transparent,
@@ -1257,7 +1379,6 @@ ul { list-style: none; }
     );
 }
 
-/* Paper fold/crease effect */
 .exp-paper-fold {
   position: absolute;
   top: 0; left: 48px; bottom: 0;
@@ -1309,10 +1430,8 @@ ul { list-style: none; }
   line-height: 1.6;
 }
 
-/* ── SO FOOT THEME ───────────────────────── */
-.exp-sofoot {
-  background: #0a0a0a;
-}
+/* ── SO FOOT THEME ──────────────────────────── */
+.exp-sofoot { background: #0a0a0a; }
 .exp-sofoot-bg {
   background:
     radial-gradient(ellipse at 30% 20%, rgba(255,69,0,0.12) 0%, transparent 60%),
@@ -1320,17 +1439,14 @@ ul { list-style: none; }
     linear-gradient(165deg, #0d0d0d 0%, #111 40%, #0a0808 100%);
 }
 .exp-sofoot-grain {
-  position: absolute;
-  inset: 0;
+  position: absolute; inset: 0;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
   background-repeat: repeat;
   mix-blend-mode: overlay;
 }
 
-/* ── BIOSPHÈRE / NATURE THEME ────────────── */
-.exp-biosphere {
-  background: #071208;
-}
+/* ── BIOSPHÈRE / NATURE THEME ───────────────── */
+.exp-biosphere { background: #071208; }
 .exp-biosphere-bg {
   background:
     radial-gradient(ellipse at 25% 30%, rgba(34,120,60,0.2) 0%, transparent 55%),
@@ -1346,9 +1462,7 @@ ul { list-style: none; }
   background-clip: text;
 }
 
-.exp-role-nature {
-  color: rgba(120,200,138,0.5);
-}
+.exp-role-nature { color: rgba(120,200,138,0.5); }
 
 .exp-paper-nature {
   background: rgba(34, 120, 60, 0.06);
@@ -1361,15 +1475,9 @@ ul { list-style: none; }
       rgba(34,120,60,0.04) 32px
     );
 }
-.exp-fold-nature {
-  background: rgba(34,120,60,0.15);
-}
-.exp-paper-nature .exp-paper-text {
-  color: rgba(200,230,200,0.65);
-}
-.exp-paper-nature .exp-paper-text strong {
-  color: rgba(200,240,210,0.9);
-}
+.exp-fold-nature { background: rgba(34,120,60,0.15); }
+.exp-paper-nature .exp-paper-text { color: rgba(200,230,200,0.65); }
+.exp-paper-nature .exp-paper-text strong { color: rgba(200,240,210,0.9); }
 
 .exp-tag-nature {
   background: rgba(34,120,60,0.1);
@@ -1381,20 +1489,13 @@ ul { list-style: none; }
   color: rgba(120,200,138,0.9);
 }
 
-.exp-biosphere .exp-chapter-label {
-  color: rgba(120,200,138,0.35);
-}
-.exp-biosphere .exp-chapter-num {
-  color: #4a9e5c;
-}
-.exp-biosphere .exp-chapter-line {
-  background: #4a9e5c;
-}
+.exp-biosphere .exp-chapter-label { color: rgba(120,200,138,0.35); }
+.exp-biosphere .exp-chapter-num { color: #4a9e5c; }
+.exp-biosphere .exp-chapter-line { background: #4a9e5c; }
 
 /* Floating leaf shapes */
 .exp-leaf {
-  position: absolute;
-  z-index: 1;
+  position: absolute; z-index: 1;
   pointer-events: none;
   border-radius: 0 70% 0 70%;
   opacity: 0.12;
@@ -1403,13 +1504,11 @@ ul { list-style: none; }
   width: 120px; height: 60px;
   top: 15%; right: 8%;
   background: linear-gradient(135deg, #3a8a4a, #2a6a3a);
-  transform: rotate(-25deg);
 }
 .exp-leaf-2 {
   width: 80px; height: 40px;
   bottom: 20%; left: 5%;
   background: linear-gradient(135deg, #4a9e5c, #357a42);
-  transform: rotate(15deg);
 }
 
 /* GitHub link — nature styled */
@@ -1422,13 +1521,8 @@ ul { list-style: none; }
   color: #7cc88a;
   transition: gap 0.25s var(--ease-out), color 0.2s;
 }
-.exp-link-nature:hover {
-  gap: 14px;
-  color: #a0e0ac;
-}
-.exp-link-nature svg {
-  width: 14px; height: 14px;
-}
+.exp-link-nature:hover { gap: 14px; color: #a0e0ac; }
+.exp-link-nature svg { width: 14px; height: 14px; }
 
 /* ============================================================
    RESPONSIVE
@@ -1456,7 +1550,11 @@ ul { list-style: none; }
   .hero-h1 { font-size: clamp(44px, 12vw, 72px); }
   .hero-scroll-hint { display: none; }
 
-  .exp-page-inner { padding: 80px var(--px); min-height: auto; min-height: 90vh; }
+  .timeline-line { left: 16px; }
+  .tl-dot-wrap { left: 0; }
+  .tl-dot { width: 32px; height: 32px; }
+  .timeline-entry { padding-left: 56px; }
+  .exp-page-inner { padding: 80px 24px; min-height: 90svh; }
   .exp-title { font-size: clamp(40px, 10vw, 72px); }
   .exp-paper-card { padding: 24px; }
   .exp-paper-fold { left: 28px; }
